@@ -84,25 +84,18 @@ def generate_launch_description():
         output='screen'
     )
 
-    # 🎮 3️⃣ 自动加载关节状态发布器 (使用标准的 spawner)
+ # 🎮 3️⃣ 自动加载关节状态控制器 (精简版)
     load_joint_state_controller = launch_ros.actions.Node(
         package='controller_manager',
         executable='spawner',
         arguments=['fishbot_joint_state_controller'],
         output='screen'
-        
     )
-
-    # 🎮 4️⃣ 自动加载差速驱动控制器 (使用配置文件中的 cmd_vel_topic 参数)
+    # 🎮 4️⃣ 自动加载差速驱动控制器 (精简版)
     load_diff_drive_controller = launch_ros.actions.Node(
         package='controller_manager',
         executable='spawner',
-        arguments=[
-            'fishbot_diff_drive_controller',
-            '--controller-ros-args',
-            '--ros-args',
-            '-p', 'use_sim_time:=true'
-        ],
+        arguments=['fishbot_diff_drive_controller'],
         output='screen'
     )
     # 🎮 5️⃣ 自动加载力控制器

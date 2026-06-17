@@ -34,7 +34,7 @@ fishbot_diff_drive_controller:
     
     # 状态控制
     enable_odom_tf: true
-    open_loop: false 
+    open_loop: true
     position_feedback: false
     
     # 指令超时
