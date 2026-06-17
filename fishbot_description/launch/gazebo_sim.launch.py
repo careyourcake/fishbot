@@ -91,11 +91,16 @@ def generate_launch_description():
         arguments=['fishbot_joint_state_controller'],
         output='screen'
     )
-    # 🎮 4️⃣ 自动加载差速驱动控制器 (精简版)
+    # 🎮 自动加载差速驱动控制器
     load_diff_drive_controller = launch_ros.actions.Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['fishbot_diff_drive_controller'],
+        arguments=[
+            'fishbot_diff_drive_controller', 
+            # 🌟 重点在这里：用一对单引号，把所有的重映射包成"一个超长的字符串"！
+            '--controller-ros-args', 
+            '--ros-args --remap /fishbot_diff_drive_controller/cmd_vel_unstamped:=/cmd_vel --remap /fishbot_diff_drive_controller/odom:=/odom'
+        ],
         output='screen'
     )
     # 🎮 5️⃣ 自动加载力控制器
@@ -105,7 +110,20 @@ def generate_launch_description():
         arguments=['fishbot_effort_controller'],
         output='screen'
     )
-
+# 🔄 5️⃣ 启动 twist_stamper 翻译官节点
+    twist_stamper_node = launch_ros.actions.Node(
+        package='twist_stamper',
+        executable='twist_stamper',
+        name='twist_stamper',
+        parameters=[{
+            'frame_id': 'base_footprint'  # 对应终端里的 -p frame_id:=base_footprint
+        }],
+        remappings=[
+            ('cmd_vel_in', '/cmd_vel'),   # 对应终端里的 cmd_vel_in:=/cmd_vel
+            ('cmd_vel_out', '/fishbot_diff_drive_controller/cmd_vel') # 对应终端里的 cmd_vel_out:=/fishbot_diff_drive_controller/cmd_vel
+        ],
+        output='screen'
+    )
     return launch.LaunchDescription([
         action_declare_arg_mode_path,
         robot_state_publisher_node,
@@ -113,6 +131,7 @@ def generate_launch_description():
         action_spawn_entity,
         action_ros_gz_bridge,
         action_ros_gz_depth_camera_bridge,
+        twist_stamper_node,
         
         # 🌟 核心回调：当 action_spawn_entity 节点退出（即模型生成完毕）后，再加载控制器
         launch.actions.RegisterEventHandler(

@@ -30,11 +30,10 @@ fishbot_diff_drive_controller:
     publish_rate: 50.0
     odom_frame_id: odom
     base_frame_id: base_footprint
-    cmd_vel_topic: cmd_vel
     
     # 状态控制
     enable_odom_tf: true
-    open_loop: true
+    open_loop: false
     position_feedback: false
     
     # 指令超时
