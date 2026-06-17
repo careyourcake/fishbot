@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="gazebo_sensor_plugin">
+<!--
+
+在 URDF 中使用 <sensor> 标签而不是 <plugin> 标签，是因为 Gazebo/URDF 的规范要求：
+
+### URDF 与 SDF 的兼容性
+
+- URDF 是 ROS 原生的机器人描述格式
+
+- Gazebo 内部使用 SDF（Simulation Description Format）
+
+- 在 URDF 中， <gazebo reference="link_name"> 标签会被转换为 SDF 中的 <link> 元素
+
+- SDF 规范规定 ： <plugin> 标签只能作为 <model> 的子元素，不能作为 <link> 的子元素-->
+
+        <!-- 激光雷达传感器 -->
+       <gazebo reference="laser_link">
+            <sensor name="laserscan" type="gpu_lidar">
+                <gz_frame_id>laser_link</gz_frame_id>
+                <topic>scan</topic>
+                
+                <always_on>true</always_on> 
+                
+                <update_rate>10</update_rate>
+                <visualize>true</visualize>
+                <lidar>
+                    <scan>
+                        <horizontal>
+                            <samples>360</samples>
+                            <resolution>1.0</resolution>
+                            <min_angle>-3.14159</min_angle>
+                            <max_angle>3.14159</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.1</min>
+                        <max>10.0</max>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.01</stddev>
+                    </noise>
+                </lidar>
+            </sensor>
+        </gazebo>
+        <!-- 深度相机传感器（绑定到光学链接） -->
+        <gazebo reference="camera_optical_link">
+            <sensor name="camera_sensor" type="depth_camera">
+                <frame>camera_optical_link</frame>
+                <topic_name>depth_camera</topic_name>
+                <update_rate>30</update_rate>
+                <visualize>true</visualize>
+                <camera>
+                    <horizontal_fov>1.047</horizontal_fov>
+                    <image>
+                        <width>640</width>
+                        <height>480</height>
+                        <format>R8G8B8</format>
+                    </image>
+                    <depth_camera>
+                        <output>depths</output> <point_cloud>true</point_cloud>
+                    </depth_camera>
+                    <clip>
+                        <near>0.01</near>
+                        <far>10.0</far>
+                    </clip>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.007</stddev>
+                    </noise>
+                </camera>
+            </sensor>
+        </gazebo>
+        <!-- IMU传感器（绑定到IMU链接） -->
+        <gazebo reference="imu_link">
+            <sensor name="imu_sensor" type="imu">
+                <frame>imu_link</frame>
+                <topic_name>imu/data</topic_name>
+                <update_rate>100</update_rate>
+                <visualize>true</visualize>
+                <imu>
+                    <angular_velocity>
+                        <noise>
+                            <type>gaussian</type>
+                            <mean>0.0 0.0 0.0</mean>
+                            <stddev>0.001 0.001 0.001</stddev>
+                        </noise>
+                    </angular_velocity>
+                    <linear_acceleration>
+                        <noise>
+                            <type>gaussian</type>
+                            <mean>0.0 0.0 0.0</mean>
+                            <stddev>0.01 0.01 0.01</stddev>
+                        </noise>
+                    </linear_acceleration>
+                </imu>
+            </sensor>
+        </gazebo>
+
+        <gazebo>
+            <!-- 关节状态发布系统 -->
+            <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+                <topic>joint_states</topic>
+                <joint_name>left_wheel_joint</joint_name>
+                <joint_name>right_wheel_joint</joint_name>
+            </plugin>
+        </gazebo>
+
+    </xacro:macro>
+</robot>

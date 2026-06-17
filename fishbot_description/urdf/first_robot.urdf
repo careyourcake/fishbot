@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- urdf_to_graphviz first_robot.urdf 运行这段描述 viz=visualization-->
+
+<!-- 机器人的身体部分 -->
+<robot name ="first_robot">
+    <!-- link == rigid body == 躯干，大臂这种不会变形的链，每个link之间用joint连接起来 -->
+    <link name="base_link">
+        <!--部件的外观描述-->
+        <visual>
+            <!--沿着自己几何中心的偏移和旋转量-->
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <!--部件的几何形状-->
+            <geometry>
+                <!--圆柱体-->
+               <cylinder radius="0.5" length="1" />
+            </geometry>
+            <!--部件的材质描述,最后一个是透明度-->
+            <material name="blue" >
+                 <color rgba="0.1 0.1 1.0 0.5" />
+            </material>
+            
+        </visual>
+    </link>
+   <!-- 机器人的IMU部件,惯性测量传感器 Inertial Measurement Unit (IMU) -->
+    <link name="imu_link">
+        <!--部件的外观描述-->
+        <visual>
+            <!--沿着自己几何中心的偏移和旋转量-->
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <!--部件的几何形状-->
+            <geometry>
+                <!--正方体-->
+               <box>
+                    <size x="0.02" y="0.02" z="0.02" />
+               </box>
+            </geometry>
+             <!--部件的材质描述,最后一个是透明度-->
+            <material name="black" >
+                <color rgba="0 0 0 0.5" />
+            </material>
+        </visual>
+    </link>
+
+    <!--机器人的关节，用于组合机器人的部件，固定关节 -->
+    <joint name="base_link_to_imu_link" type="fixed">
+        <parent link="base_link" />
+        <child link="imu_link" />
+        <!--子部件相对父部件的平移和旋转-->
+        <origin xyz="0 0 0.03" rpy="0 0 0" />
+    </joint>
+</robot>
