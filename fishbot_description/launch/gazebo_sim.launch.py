@@ -7,7 +7,7 @@ def generate_launch_description():
     # 获取 pkg 的路径
     urdf_tutorial_path = get_package_share_directory('fishbot_description')
     default_model_path = os.path.join(urdf_tutorial_path, 'urdf', 'fishbot', 'fishbot.urdf.xacro')
-    
+    slam_config_path = os.path.join(get_package_share_directory('fishbot_description'), 'config', 'slam_toolbox_params.yaml')
     # 💡 根据你的提醒配置世界
     world_name = 'empty' 
     default_gazebo_world_path = os.path.join(urdf_tutorial_path, 'world', 'custom_room.world')
@@ -124,6 +124,17 @@ def generate_launch_description():
         ],
         output='screen'
     )
+    # 直接引入官方的启动文件，复用你的 yaml 参数
+    slam_launch = launch.actions.IncludeLaunchDescription(
+        launch.launch_description_sources.PythonLaunchDescriptionSource(
+            [get_package_share_directory('slam_toolbox'), '/launch/online_async_launch.py']
+        ),
+        launch_arguments={
+            'params_file': '/home/haoye/ch2/ch7_ws/src/fishbot_description/config/slam_toolbox_params.yaml',
+            'use_sim_time': 'true'
+        }.items()
+    )
+
     return launch.LaunchDescription([
         action_declare_arg_mode_path,
         robot_state_publisher_node,
@@ -151,4 +162,11 @@ def generate_launch_description():
                 ]
             )
         ),
+        # # 🌟 这里的魔改：控制器启动成功后，才启动 SLAM
+        # launch.actions.RegisterEventHandler(
+        #     event_handler=launch.event_handlers.OnProcessExit(
+        #         target_action=load_diff_drive_controller,
+        #         on_exit=[slam_launch]
+        #     )
+        # ),
     ])
